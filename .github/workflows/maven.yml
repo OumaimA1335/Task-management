@@ -44,12 +44,14 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Build JAR
+        run: mvn clean package -DskipTests
+
       - name: Build and Test
         run: |
-          mvn clean compile test-compile
           mvn test
 
-      - name: SonarCloud Analysis with verbose logging
+      - name: SonarCloud Analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -69,15 +71,17 @@ jobs:
       - name: Start Application in Background
         run: |
           java -jar target/*.jar &
-          sleep 25  # wait for app to be ready
+          sleep 25
+
+      - name: Fix permissions for ZAP
+        run: sudo chmod -R a+w $GITHUB_WORKSPACE
 
       - name: Run OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.12.0
         with:
           target: 'http://localhost:8080'
-          rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a'
-          fail_on_error: false  # optional, don’t fail workflow if issues found
+          fail_on_error: false  # workflow will not fail for learning projects
 
       - name: Upload ZAP Report
         uses: actions/upload-artifact@v4
