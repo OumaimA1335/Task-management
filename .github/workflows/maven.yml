@@ -41,6 +41,7 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
+          fetch-depth: 0
 
       - name: Build with Maven
         run: mvn clean install -B
