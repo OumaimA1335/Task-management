@@ -71,7 +71,7 @@ jobs:
       - name: Start Application in Background
         run: |
           java -jar target/*.jar &
-          sleep 25
+          sleep 30
 
       - name: Fix permissions for ZAP
         run: sudo chmod -R a+w $GITHUB_WORKSPACE
@@ -81,7 +81,6 @@ jobs:
         with:
          target: 'http://localhost:8080/taskmanagement'  
          cmd_options: '-a'
-         fail_action: ignore
          allow_issue_writing: false
 
       - name: Upload ZAP Report
