@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TaskService {
@@ -33,8 +34,9 @@ public class TaskService {
     public List<Task> findAll(){
         return taskRepository.findAll();
     }
-    public Task findById(long id){
-        return taskRepository.findById(id).get();
+    public Task findById(long id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found with ID: " + id));
     }
     public Boolean delete(Long id) {
         if (!taskRepository.existsById(id)) {
