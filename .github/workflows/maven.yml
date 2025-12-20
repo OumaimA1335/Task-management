@@ -1,4 +1,4 @@
-name: Java CI with Maven and SonarCloud
+name: Java CI with Maven, SonarCloud & DAST
 
 on:
   push:
@@ -49,15 +49,6 @@ jobs:
           mvn clean compile test-compile
           mvn test
 
-      - name: Debug - List directory structure
-        run: |
-          echo "=== Directory Structure ==="
-          find . -name "*.java" -type f | head -20
-          echo "=== POM Files ==="
-          find . -name "pom.xml" -type f
-          echo "=== Target Directories ==="
-          find . -type d -name "target" | head -5
-
       - name: SonarCloud Analysis with verbose logging
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -74,3 +65,22 @@ jobs:
             -Dsonar.tests=src/test/java \
             -Dsonar.java.binaries=target/classes \
             -Dsonar.java.test.binaries=target/test-classes
+
+      - name: Start Application in Background
+        run: |
+          java -jar target/*.jar &
+          sleep 25  # wait for app to be ready
+
+      - name: Run OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          target: 'http://localhost:8080'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+          fail_on_error: false  # optional, don’t fail workflow if issues found
+
+      - name: Upload ZAP Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report
+          path: zap-report.html
