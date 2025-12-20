@@ -1,5 +1,6 @@
 package com.TaskManagement.main.Controllers;
 
+import com.TaskManagement.main.DTO.TaskRequest;
 import com.TaskManagement.main.Entities.Task;
 import com.TaskManagement.main.Services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +19,8 @@ public class TaskController {
     private TaskService taskService;
 
     @PostMapping
-    public ResponseEntity<Task> createTask(@RequestBody Task task) {
-
-        taskService.add(task);
-        return ResponseEntity.ok().body(task);
+    public ResponseEntity<Task> createTask(@RequestBody TaskRequest task) {
+        return ResponseEntity.ok().body(taskService.add(task));
     }
 
     @GetMapping("{id}")
