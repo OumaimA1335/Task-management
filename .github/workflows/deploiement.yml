@@ -1,4 +1,4 @@
-name: CI - Build, Test, Deploy with Kind
+name: CD - Build, Test, Deploy with Kind
 
 on:
   push:
