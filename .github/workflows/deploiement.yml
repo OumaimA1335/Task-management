@@ -1,0 +1,53 @@
+name: CI - Build, Test, Deploy with Kind
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Récupérer le code
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      # 2️⃣ Installer Java 17
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 3️⃣ Build + tests Maven
+      - name: Build Maven project
+        run: mvn clean install
+
+      # 4️⃣ Installer Kind
+      - name: Set up Kind
+        uses: engineerd/setup-kind@v0.6.0
+
+      # 5️⃣ Créer le cluster Kind
+      - name: Create Kind cluster
+        run: kind create cluster --name kind-ci --wait 5m
+
+      # 6️⃣ Build l’image Docker
+      - name: Build Docker image
+        run: docker build -t devopsproject-backend:latest .
+
+      # 7️⃣ Charger l’image Docker dans Kind
+      - name: Load Docker image into Kind
+        run: kind load docker-image devopsproject-backend:latest --name kind-ci
+
+      # 8️⃣ Déployer sur Kubernetes
+      - name: Deploy to Kind
+        run: kubectl apply -f K8s/
+
+      # 9️⃣ Vérifier les pods
+      - name: Check Pods
+        run: kubectl get pods -A
+
+      
