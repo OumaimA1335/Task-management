@@ -36,15 +36,6 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # 3️⃣ Attendre MySQL
-      - name: Wait for MySQL
-        run: |
-          sudo apt-get install -y mysql-client
-          until mysql -h 127.0.0.1 -uroot -proot -e "SELECT 1"; do
-            echo "Waiting for MySQL..."
-            sleep 5
-          done
-
       # 4️⃣ Build + tests (CI)
       - name: Build Maven project
         run: mvn clean install
